@@ -1,6 +1,12 @@
 package com.example.valentinmakhlay.bloknot;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -12,9 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +50,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        editText = (EditText) findViewById(R.id.editText);
     }
 
     @Override
@@ -53,6 +65,37 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume(){
+        super.onResume();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        float fSize = Float.parseFloat(sharedPreferences.getString("Размер", "20"));
+        editText.setTextSize(fSize);
+
+        String regular = sharedPreferences.getString("Стиль", "");
+        int typeface = Typeface.NORMAL;
+
+        if(regular.contains("Полужирный"));
+        typeface += Typeface.BOLD;
+
+        if(regular.contains("Курсив"));
+        typeface += Typeface.ITALIC;
+
+        editText.setTypeface(null, typeface);
+
+        int color = Color.BLACK;
+        if(sharedPreferences.getBoolean(getString(R.string.pref_color_red), false))
+            color += Color.RED;
+
+        if(sharedPreferences.getBoolean(getString(R.string.pref_color_green), false))
+            color += Color.GREEN;
+
+        if(sharedPreferences.getBoolean(getString(R.string.pref_color_blue), false))
+            color += Color.BLUE;
+
+        editText.setTextColor(color);
+    }
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -64,15 +107,28 @@ public class MainActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.action_clear:
+                editText.setText("");
+                Toast.makeText(getApplicationContext(), "Очищено", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
